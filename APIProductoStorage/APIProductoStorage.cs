@@ -1,11 +1,11 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APIProductoStorage
 {
@@ -39,8 +39,15 @@ namespace APIProductoStorage
                 myBlob = file.OpenReadStream();
                 var blobClient = new BlobContainerClient(Connection, "producto-images");
                 var blob = blobClient.GetBlobClient(blobName);
-                await blob.UploadAsync(myBlob);
-                
+                //await blob.UploadAsync(myBlob);
+                await blob.UploadAsync(
+                   myBlob,
+                   new BlobHttpHeaders
+                   {
+                       ContentType = file.ContentType
+                   },
+                   conditions: null
+                   );
                 return new OkObjectResult(blobName);
             }catch(Exception ex)
             {
